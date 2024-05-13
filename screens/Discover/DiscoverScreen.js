@@ -1,18 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useRef, useCallback } from "react";
 import { EvilIcons, MaterialIcons } from "@expo/vector-icons";
 import {
   Animated,
   Dimensions,
+  Image,
   Platform,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { Sizes, Fonts } from "../../constants/styles";
+import { Colors, Sizes, Fonts } from "../../constants/styles";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { markers, mapDarkStyle, mapStandardStyle } from "../../model/mapData";
 import { useTheme } from "@react-navigation/native";
+import BottomSheet, {
+  BottomSheetFlatList,
+  BottomSheetScrollView,
+} from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Slider from "@react-native-community/slider";
 
 const { width } = Dimensions.get("window");
 const CARD_HEIGHT = 220;
@@ -58,6 +66,93 @@ function DiscoverScreen({ navigation }) {
   ];
 
   const theme = useTheme();
+  const sheetRef = useRef(null);
+
+  const snapPoints = useMemo(() => ["25%", "70%"], []);
+
+  const handleSheetChange = useCallback((index) => {
+    setState((state) => ({ ...state, sheetindex: index }));
+  }, []);
+
+  const handleSnapPress = useCallback((index) => {
+    sheetRef.current?.snapToIndex(index);
+  }, []);
+  const handleClosePress = useCallback(() => {
+    sheetRef.current?.close();
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }) => (
+      <View style={styles.itemContainer}>
+        <Text>{item}</Text>
+      </View>
+    ),
+    []
+  );
+
+  const renderItemPartners = ({ item }) => (
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => navigation.push("RestaurantDetail", { id: item.id })}
+      style={styles.nearByRestaurantsWrapStyle}
+    >
+      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+          <View style={styles.nearByRestaurantsIconWrapStyle}>
+            <Image
+              source={require("../../assets/images/icons/restaurant_icon.png")}
+              style={{
+                width: "100%",
+                height: "100%",
+                flex: 1,
+                resizeMode: "contain",
+              }}
+            />
+          </View>
+          <View style={{ flex: 1, marginLeft: Sizes.fixPadding }}>
+            <Text style={{ ...Fonts.blackColor12SemiBold }}>
+              {item.restaurantName}
+            </Text>
+            <Text style={{ ...Fonts.grayColor12Medium }}>
+              {item.ratedPeopleCount} People Rated
+            </Text>
+          </View>
+        </View>
+        <View style={{ flexDirection: "row" }}>
+          <Text
+            style={{
+              marginRight: Sizes.fixPadding - 5.0,
+              ...Fonts.primaryColor12SemiBold,
+            }}
+          >
+            {item.rating.toFixed(1)}
+          </Text>
+          <MaterialIcons name="star" color={Colors.primaryColor} size={14} />
+        </View>
+      </View>
+      <View
+        style={{
+          marginTop: Sizes.fixPadding - 5.0,
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <MaterialIcons
+          name="location-on"
+          color={Colors.primaryColor}
+          size={16}
+        />
+        <Text
+          style={{
+            marginLeft: Sizes.fixPadding - 5.0,
+            ...Fonts.grayColor12Medium,
+          }}
+        >
+          {item.restaurantAddress}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   const initialMapState = {
     markers,
@@ -176,36 +271,6 @@ function DiscoverScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.headerWrapStyle}> */}
-        {/* <MaterialIcons
-          name="arrow-back-ios"
-          color="#000000"
-          size={22}
-          onPress={() => navigation.pop()}
-        /> */}
-
-        <View style={styles.searchContainer}>
-          <View style={styles.search}>
-            <EvilIcons
-              name="search"
-              size={24}
-              color="black"
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.textInput}
-              placeholder="Search"
-              // value={search}
-              // onTouchStart={() => handleSnapPress(1)}
-              // onChangeText={(text) => updateState({ search: text })}
-              // selectionColor={Colors.primaryColor}
-              // inputStyle={{ marginLeft: Sizes.fixPadding }}
-              // inputContainerStyle={{ borderBottomWidth: 0.0, height: 30.0 }}
-              // containerStyle={styles.searchFieldStyle}
-            />
-          </View>
-        </View>
-      {/* </View> */}
       <MapView
         ref={_map}
         initialRegion={state.region}
@@ -238,6 +303,134 @@ function DiscoverScreen({ navigation }) {
           );
         })}
       </MapView>
+      <View style={styles.headerWrapStyle}>
+        {/* <MaterialIcons
+          name="arrow-back-ios"
+          color="#000000"
+          size={22}
+          onPress={() => navigation.pop()}
+        /> */}
+
+        <View style={styles.searchContainer}>
+          <View style={styles.search}>
+            <EvilIcons
+              name="search"
+              size={24}
+              color="black"
+              style={styles.searchIcon}
+            />
+            <TextInput
+              style={styles.textInput}
+              placeholder="Search"
+              // value={search}
+              // onTouchStart={() => handleSnapPress(1)}
+              // onChangeText={(text) => updateState({ search: text })}
+              // selectionColor={Colors.primaryColor}
+              // inputStyle={{ marginLeft: Sizes.fixPadding }}
+              // inputContainerStyle={{ borderBottomWidth: 0.0, height: 30.0 }}
+              // containerStyle={styles.searchFieldStyle}
+            />
+          </View>
+        </View>
+      </View>
+
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <BottomSheet
+          ref={sheetRef}
+          snapPoints={snapPoints}
+          onChange={(index) => {
+            updateState({ sheetindex: index });
+          }}
+          detached={true}
+        >
+          <View style={{ marginHorizontal: Sizes.fixPadding * 2.0 }}>
+            {/* <Input
+            value={search}
+            onTouchStart={() => handleSnapPress(1)}
+            onChangeText={(text) => updateState({ search: text })}
+            placeholder='Fast food...'
+            placeholderTextColor={Colors.grayColor}
+            selectionColor={Colors.primaryColor}
+            leftIcon={
+              <Icon
+                name='search'
+                size={18}
+                color={Colors.grayColor}
+              />
+            }
+            style={{ ...Fonts.blackColor13Medium }}
+            inputStyle={{ marginLeft: Sizes.fixPadding, }}
+            inputContainerStyle={{ borderBottomWidth: 0.0, height: 30.0, }}
+            containerStyle={styles.searchFieldStyle}
+          /> */}
+          </View>
+          {/* } */}
+
+          <View style={{ height: 40 }}>
+            <BottomSheetScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              showsVerticalScrollIndicator={true}
+              contentContainerStyle={styles.contentContainer}
+              style={{ marginLeft: 15 }}
+            >
+              {state.categories.map((category, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={
+                    filterState === category.id
+                      ? styles.ActivechipsItem
+                      : styles.chipsItem
+                  }
+                  onPress={() => {
+                    setFilterState(category.id);
+                  }}
+                >
+                  {category.icon}
+                  <Text
+                    style={
+                      filterState === category.id
+                        ? { color: Colors.whiteColor }
+                        : { color: Colors.blackColor }
+                    }
+                  >
+                    {category.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </BottomSheetScrollView>
+          </View>
+          <View>
+            {filterState === "radius" ? (
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={100}
+                minimumTrackTintColor="#175594"
+                maximumTrackTintColor="#000000"
+                onValueChange={setValue}
+                step={1}
+              />
+            ) : (
+              ""
+            )}
+          </View>
+          <View
+            style={{
+              marginVertical: Sizes.fixPadding * 0.5,
+              backgroundColor: Colors.grayColor,
+              height: 1.0,
+            }}
+          />
+          <BottomSheetFlatList
+            listKey="nearByRestaurants"
+            data={nearByRestaurantsList}
+            keyExtractor={(item) => `${item.id}`}
+            renderItem={renderItemPartners}
+            contentContainerStyle={styles.contentContainer}
+          />
+        </BottomSheet>
+      </GestureHandlerRootView>
     </View>
   );
 }
@@ -247,15 +440,22 @@ export default DiscoverScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30,
+    // marginTop: 30,
+  },
+  headerWrapStyle: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 60,
   },
   searchContainer: {
-    height: 85
+    height: 85,
   },
   search: {
     flex: 1,
     flexDirection: "row",
-    // backgroundColor: "#bdbdbd30",
+    backgroundColor: "#ffffff",
     borderWidth: 1,
     borderRadius: 8,
     margin: 20,

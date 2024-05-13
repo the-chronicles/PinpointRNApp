@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+// import { StatusBar } from "expo-status-bar";
+import { StatusBar, StyleSheet, Text, View } from "react-native";
 import DiscoverScreen from "./screens/Discover/DiscoverScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
@@ -19,64 +20,65 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          // tabBarStyle: {
-          //   // height: 70,
-          //   // marginBottom: 40
-          //   alignItems: 'center', justifyContent: 'center'
-          // },
-          // tabBarLabelStyle: { height: 40, },
-        }}
-      >
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            title: "Home",
-            tabBarLabel: "Home",
-            tabBarIcon: ({ color, size }) => (
-              <Feather name="home" size={size} color={color} />
-            ),
+    <>
+      <StatusBar style="auto" />
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
           }}
-        />
-        <Tab.Screen
-          name="Discover"
-          component={DiscoverScreen}
-          options={{
-            title: "Discover",
-            tabBarLabel: "Discover",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="compass-outline" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Social"
-          component={SocialScreen}
-          options={{
-            title: "Social",
-            tabBarLabel: "Social",
-            tabBarIcon: ({ color, size }) => (
-              <SimpleLineIcons name="location-pin" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Menu"
-          component={Menu}
-          options={{
-            title: "Menu",
-            tabBarLabel: "Menu",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="menu" size={size} color={color} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+        >
+          <Tab.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{
+              title: "Home",
+              tabBarLabel: "Home",
+              tabBarIcon: ({ color, size }) => (
+                <Feather name="home" size={size} color={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Discover"
+            component={DiscoverScreen}
+            options={{
+              title: "Discover",
+              tabBarLabel: "Discover",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="compass-outline" size={size} color={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Social"
+            component={SocialScreen}
+            options={{
+              title: "Social",
+              tabBarLabel: "Social",
+              tabBarIcon: ({ color, size }) => (
+                <SimpleLineIcons
+                  name="location-pin"
+                  size={size}
+                  color={color}
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Menu"
+            component={Menu}
+            options={{
+              title: "Menu",
+              tabBarLabel: "Menu",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="menu" size={size} color={color} />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
 
