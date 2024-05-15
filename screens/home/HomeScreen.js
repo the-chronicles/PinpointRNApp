@@ -9,15 +9,6 @@ function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text>Home Screen!</Text>
-      
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <BottomSheet snapPoints={snapPoints}>
-            <View>
-              <Text>This is Bottom</Text>
-            </View>
-          </BottomSheet>
-        </GestureHandlerRootView>
-      
     </View>
   );
 }

@@ -14,11 +14,19 @@ import {
 } from "@expo/vector-icons";
 import SocialScreen from "./social/SocialScreen";
 import Menu from "./screens/Menu";
+// import { useFonts } from "expo-font";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  // const [fontsLoaded] = useFonts({
+  //   Montserrat_Light: require("./assets/fonts/Montserrat-Light.ttf"),
+  //   Montserrat_Regular: require("./assets/fonts/Montserrat-Regular.ttf"),
+  //   Montserrat_Medium: require("./assets/fonts/Montserrat-Medium.ttf"),
+  //   Montserrat_SemiBold: require("./assets/fonts/Montserrat-SemiBold.ttf"),
+  //   Montserrat_Bold: require("./assets/fonts/Montserrat-Bold.ttf"),
+  // });
   return (
     <>
       <StatusBar style="auto" />

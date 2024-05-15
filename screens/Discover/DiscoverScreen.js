@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useCallback } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+  useState,
+} from "react";
 import { EvilIcons, MaterialIcons } from "@expo/vector-icons";
 import {
   Animated,
@@ -30,7 +36,7 @@ function DiscoverScreen({ navigation }) {
   const nearByRestaurantsList = [
     {
       id: "1",
-      restaurantName: "Marine Rise Restaurant",
+      restaurantName: "Marine Rise Restaurant!",
       ratedPeopleCount: 198,
       restaurantAddress: "1124, Old Chruch Street, New york, USA",
       rating: 4.3,
@@ -68,6 +74,8 @@ function DiscoverScreen({ navigation }) {
   const theme = useTheme();
   const sheetRef = useRef(null);
 
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+
   const snapPoints = useMemo(() => ["25%", "70%"], []);
 
   const handleSheetChange = useCallback((index) => {
@@ -80,6 +88,10 @@ function DiscoverScreen({ navigation }) {
   const handleClosePress = useCallback(() => {
     sheetRef.current?.close();
   }, []);
+
+  const handleSearchInputPress = () => {
+    setShowBottomSheet(true);
+  };
 
   const renderItem = useCallback(
     ({ item }) => (
@@ -159,22 +171,22 @@ function DiscoverScreen({ navigation }) {
     categories: [
       {
         id: "open_now",
-        name: "Open now",
+        name: "15 Mile",
         // icon: <MaterialCommunityIcons style={styles.chipsIcon} name="truck-delivery" size={18} />,
       },
       {
         id: "radius",
-        name: "Radius",
+        name: "15 Mile",
         // icon: <MaterialCommunityIcons style={styles.chipsIcon} name="radius" size={18} />,
       },
       {
         id: "address",
-        name: "Address",
+        name: "Partner Type",
         // icon: <MaterialCommunityIcons style={styles.chipsIcon} name="city" size={18} />,
       },
       {
         id: "category",
-        name: "category",
+        name: "Category",
         // icon: <MaterialIcons name="category" style={styles.chipsIcon} size={18} />,
       },
       {
@@ -270,11 +282,12 @@ function DiscoverScreen({ navigation }) {
   const _scrollView = React.useRef(null);
 
   return (
-    <View style={styles.container}>
+    // <View style={styles.container}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <MapView
         ref={_map}
         initialRegion={state.region}
-        style={styles.container}
+        style={styles.map}
         provider={PROVIDER_GOOGLE}
         customMapStyle={theme.dark ? mapDarkStyle : mapStandardStyle}
       >
@@ -303,39 +316,28 @@ function DiscoverScreen({ navigation }) {
           );
         })}
       </MapView>
-      <View style={styles.headerWrapStyle}>
-        {/* <MaterialIcons
-          name="arrow-back-ios"
-          color="#000000"
-          size={22}
-          onPress={() => navigation.pop()}
-        /> */}
 
-        <View style={styles.searchContainer}>
-          <View style={styles.search}>
-            <EvilIcons
-              name="search"
-              size={24}
-              color="black"
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.textInput}
-              placeholder="Search"
-              // value={search}
-              // onTouchStart={() => handleSnapPress(1)}
-              // onChangeText={(text) => updateState({ search: text })}
-              // selectionColor={Colors.primaryColor}
-              // inputStyle={{ marginLeft: Sizes.fixPadding }}
-              // inputContainerStyle={{ borderBottomWidth: 0.0, height: 30.0 }}
-              // containerStyle={styles.searchFieldStyle}
-            />
-          </View>
+      <View style={styles.searchContainer}>
+        <View style={styles.search}>
+          <EvilIcons
+            name="search"
+            size={24}
+            color="black"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.textInput}
+            placeholder="Search"
+            value={search}
+            // onTouchStart={() => handleSnapPress(1)}
+            onTouchStart={() => handleSearchInputPress()}
+            onChangeText={(text) => updateState({ search: text })}
+          />
         </View>
       </View>
 
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <BottomSheet
+      {/* <GestureHandlerRootView style={{ flex: 1 }}> */}
+        { showBottomSheet && (<BottomSheet
           ref={sheetRef}
           snapPoints={snapPoints}
           onChange={(index) => {
@@ -343,33 +345,10 @@ function DiscoverScreen({ navigation }) {
           }}
           detached={true}
         >
-          <View style={{ marginHorizontal: Sizes.fixPadding * 2.0 }}>
-            {/* <Input
-            value={search}
-            onTouchStart={() => handleSnapPress(1)}
-            onChangeText={(text) => updateState({ search: text })}
-            placeholder='Fast food...'
-            placeholderTextColor={Colors.grayColor}
-            selectionColor={Colors.primaryColor}
-            leftIcon={
-              <Icon
-                name='search'
-                size={18}
-                color={Colors.grayColor}
-              />
-            }
-            style={{ ...Fonts.blackColor13Medium }}
-            inputStyle={{ marginLeft: Sizes.fixPadding, }}
-            inputContainerStyle={{ borderBottomWidth: 0.0, height: 30.0, }}
-            containerStyle={styles.searchFieldStyle}
-          /> */}
-          </View>
-          {/* } */}
-
           <View style={{ height: 40 }}>
             <BottomSheetScrollView
               horizontal
-              showsHorizontalScrollIndicator={false}
+              showsHorizontalScrollIndicator={true}
               showsVerticalScrollIndicator={true}
               contentContainerStyle={styles.contentContainer}
               style={{ marginLeft: 15 }}
@@ -429,9 +408,9 @@ function DiscoverScreen({ navigation }) {
             renderItem={renderItemPartners}
             contentContainerStyle={styles.contentContainer}
           />
-        </BottomSheet>
+        </BottomSheet>)}
       </GestureHandlerRootView>
-    </View>
+    // </View>
   );
 }
 
@@ -441,16 +420,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // marginTop: 30,
+    position: "relative",
+    flexDirection: 'column',
   },
-  headerWrapStyle: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 60,
+  map: {
+    flex: 1,
   },
   searchContainer: {
     height: 85,
+    position: "absolute", // Position search input on top of map
+    top: 10, // Adjust this value to position the search input
+    left: 10,
+    right: 10,
+    zIndex: 1, // Ensure search input is above map
   },
   search: {
     flex: 1,
@@ -467,5 +449,185 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
+  },
+  searchBox: {
+    // position: 'absolute',
+    marginTop: Platform.OS === "ios" ? 5 : 0,
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    width: "90%",
+    alignSelf: "center",
+    // borderRadius: 5,
+    padding: 5,
+    shadowColor: "#ccc",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 10,
+  },
+  chipsScrollView: {
+    top: Platform.OS === "ios" ? 90 : 10,
+    // paddingHorizontal: 10,
+  },
+  chipsIcon: {
+    marginRight: 5,
+  },
+  chipsItem: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    borderColor: Colors.lightGrayColor,
+    borderWidth: 1.0,
+    borderRadius: 10,
+    padding: 5,
+    paddingHorizontal: 20,
+    marginHorizontal: 5,
+    height: 30,
+    shadowColor: "#ccc",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 10,
+    marginVertical: 5,
+  },
+
+  ActivechipsItem: {
+    flexDirection: "row",
+    backgroundColor: Colors.primaryColor,
+    borderWidth: 1.0,
+    borderColor: Colors.primaryColor,
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 5,
+    marginHorizontal: 5,
+    marginVertical: 5,
+    height: 30,
+    shadowColor: "#ccc",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 10,
+  },
+  scrollView: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingVertical: 10,
+  },
+  endPadding: {
+    paddingRight: width - CARD_WIDTH,
+  },
+
+  itemContainer: {
+    padding: 6,
+    margin: 6,
+    backgroundColor: "#eee",
+  },
+
+  contentContainer: {
+    backgroundColor: "white",
+  },
+
+  card: {
+    // padding: 10,
+    elevation: 2,
+    backgroundColor: "#FFF",
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    marginHorizontal: 10,
+    shadowColor: "#000",
+    shadowRadius: 5,
+    shadowOpacity: 0.3,
+    shadowOffset: { x: 2, y: -2 },
+    height: CARD_HEIGHT,
+    width: CARD_WIDTH,
+    overflow: "hidden",
+  },
+  cardImage: {
+    flex: 3,
+    width: "100%",
+    height: "100%",
+    alignSelf: "center",
+  },
+  textContent: {
+    flex: 2,
+    padding: 10,
+  },
+  cardtitle: {
+    fontSize: 12,
+    // marginTop: 5,
+    fontWeight: "bold",
+  },
+  cardDescription: {
+    fontSize: 12,
+    color: "#444",
+  },
+  markerWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 50,
+    height: 50,
+  },
+  marker: {
+    width: 20,
+    height: 30,
+  },
+  button: {
+    alignItems: "center",
+    marginTop: 5,
+  },
+  signIn: {
+    width: "100%",
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 3,
+  },
+  textSign: {
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  nearByRestaurantsWrapStyle: {
+    backgroundColor: Colors.whiteColor,
+    borderRadius: Sizes.fixPadding,
+    marginHorizontal: Sizes.fixPadding * 1.0,
+    padding: Sizes.fixPadding,
+  },
+  nearByRestaurantsIconWrapStyle: {
+    width: 35.0,
+    height: 35.0,
+    backgroundColor: "#E6E6E6",
+    borderRadius: Sizes.fixPadding - 5.0,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: Sizes.fixPadding - 6.0,
+  },
+  searchInfoWrapStyle: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.whiteColor,
+    borderRadius: Sizes.fixPadding - 5.0,
+    padding: Sizes.fixPadding + 1.0,
+    elevation: 2.0,
+  },
+  searchFieldStyle: {
+    height: 30.0,
+    backgroundColor: Colors.whiteColor,
+    borderRadius: Sizes.fixPadding,
+  },
+  sliderContainer: {
+    flex: 1,
+    height: 60,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  slider: {
+    width: 300,
+    height: 40,
+  },
+  label: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginVertical: 10,
   },
 });
